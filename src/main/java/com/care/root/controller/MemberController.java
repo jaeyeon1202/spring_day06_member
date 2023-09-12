@@ -1,11 +1,14 @@
 package com.care.root.controller;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,27 +33,46 @@ public class MemberController implements LoginSession {
 	
 	@PostMapping("logChk")
 	public String logChk(@RequestParam String id, @RequestParam String pw, 
-							HttpSession session, RedirectAttributes rs) {
+			@RequestParam(required = false, defaultValue = "off") String autoLogin, HttpSession session, RedirectAttributes rs) {
 		System.out.println("logChk 실헹");
 		
 		int result = ms.logChk(id, pw);
 		if(result == 0) {
 			session.setAttribute(LOGIN, id);
 			rs.addAttribute("id", id);
+			rs.addAttribute("autoLogin", autoLogin);
 			return "redirect:successLogin";
 		}
 		return "redirect:login";
 	}
 	
 	@GetMapping("successLogin")
-	public String successLogin(@RequestParam String id, HttpSession session) {
+	public String successLogin(@RequestParam String id, HttpSession session
+								,@RequestParam String autoLogin, HttpServletResponse res) {
 		System.out.println("successLogin 실행");
+		System.out.println("autoLogin : "+autoLogin);
+		if(autoLogin.equals("on")) {
+			int limitTime = 60*60*24*90; //90일 설정
+			Cookie loginCookie = new Cookie("loginCookie", session.getId());
+			loginCookie.setPath("/");
+			loginCookie.setMaxAge(limitTime);
+			res.addCookie(loginCookie);
+			
+			ms.keepLogin(session.getId(), id);
+		}
+		
 		session.setAttribute(LoginSession.LOGIN, id);
 		return "member/successLogin";
 	}
 	
 	@GetMapping("logout")
-	public String logout(HttpSession session) {
+	public String logout(HttpSession session,
+				@CookieValue(value="loginCookie", required = false) Cookie cookie,
+				HttpServletResponse res) {
+		if(cookie != null) {
+			cookie.setMaxAge(0); //사용자한테는 쿠키가 사라짐
+			ms.keepLogin("nan", (String)session.getAttribute(LOGIN));
+		}
 		System.out.println("logout 실행");
 		session.invalidate();
 		return "redirect:login";

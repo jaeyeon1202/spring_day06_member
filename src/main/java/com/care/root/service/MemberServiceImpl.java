@@ -75,4 +75,15 @@ public class MemberServiceImpl implements MemberService{
 		map.put("addr3", addr[2]);
 		return map;
 	}
+	
+	public void keepLogin(String session_id, String id) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("session_id", session_id);
+		map.put("id", id);
+		mapper.keepLogin( map );
+	}
+	
+	public MemberDTO getUserSessionId( String session_id) {
+		return mapper.getUserSessionId(session_id);
+	}
 }
