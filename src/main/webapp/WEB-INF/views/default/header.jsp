@@ -26,6 +26,8 @@
 	<c:if test="${login == null }">
 		<a href="${contextPath }/member/login">LOGIN</a>
 	</c:if>
+	
 	<a href="${contextPath }/member/list">MEMBERS</a>
+	<a href="${contextPath }/board/boardAllList">BOARD</a>
 </body>
 </html>

@@ -26,12 +26,20 @@
 	<beans:bean id="memInter" class="com.care.root.interceptor.MemberInterceptor" />
 	<beans:bean id="testInter" class="com.care.root.interceptor.testIn" />
 	<beans:bean id="autoLogin" class="com.care.root.interceptor.AutoLoginInterceptor" />
+	<beans:bean id="board" class="com.care.root.interceptor.BoardInterceptor" />
+	
 	
 	<interceptors>
+		<interceptor>
+			<mapping path="/board/writeForm"/>
+			<beans:ref bean="board"/>
+		</interceptor>
+	
 	
 		<interceptor>
 			<mapping path="/member/list" />
 			<mapping path="/member/logout" />
+			<!-- <mapping path="/board/writeForm" /> -->
 			<beans:ref bean="memInter" />
 		</interceptor>
 		<interceptor>
