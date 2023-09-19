@@ -29,7 +29,14 @@
 				 <td>${dto.hit }</td> <td>${dto.imageFileName }</td>
 			 </tr>
 		</c:forEach>
-		<tr><td colspan="6"><a href="writeForm">글작성</a></td></tr>
+		<tr><td colspan="6">
+			<c:forEach var="n" begin="1" end="${repeat }">
+				<a href="boardAllList?num=${n }">${n }</a>
+			</c:forEach>
+			
+			
+			<a href="writeForm">글작성</a>
+		</td></tr>
 	</table>
 </body>
 </html>

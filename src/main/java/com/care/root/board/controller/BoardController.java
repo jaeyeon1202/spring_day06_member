@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,9 +31,12 @@ public class BoardController {
 	@Autowired BoardService bs;
 	
 	@GetMapping("boardAllList")
-	public String boardAllList(Model model) {
+	public String boardAllList(Model model, 
+			@RequestParam(required = false, defaultValue = "1") int num) {
 		
-		model.addAttribute("list", bs.boardAllList());
+		Map<String, Object> map = bs.boardAllList(num);
+		model.addAttribute("list", map.get("list"));
+		model.addAttribute("repeat", map.get("repeat"));
 		
 		return "board/boardAllList";
 	}
@@ -74,5 +78,31 @@ public class BoardController {
 		FileInputStream in = new FileInputStream(file);
 		FileCopyUtils.copy(in, res.getOutputStream());
 		in.close();
+	}
+	
+	@GetMapping("modify_form")
+	public String modifyForm(@RequestParam int writeNo, Model model) {
+		
+		model.addAttribute("content", bs.getContent(writeNo));
+		return "board/modify_form";
+	}
+	
+	@PostMapping("modify")
+	public void modify(BoardDTO dto, @RequestParam MultipartFile file
+						, HttpServletResponse res) throws Exception{
+		String msg = bs.modify(dto, file);
+		res.setContentType("text/html; cahrset=utf-8");
+		PrintWriter out = res.getWriter();
+		out.print(msg);
+	}
+	
+	@GetMapping("delete")
+	public void delete(@RequestParam int writeNo, @RequestParam String fileName,
+						HttpServletResponse res) throws Exception{
+		String msg = bs.delete(writeNo, fileName);
+		
+		res.setContentType("text/html; cahrset=utf-8");
+		PrintWriter out = res.getWriter();
+		out.print(msg);
 	}
 }
